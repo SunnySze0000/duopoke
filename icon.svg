@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <rect width="512" height="512" rx="112" fill="#111114"/>
-  <circle cx="256" cy="256" r="154" fill="#fff"/>
-  <path d="M102 256a154 154 0 0 1 308 0H102Z" fill="#e32222"/>
-  <path d="M102 256h308" stroke="#111114" stroke-width="34" stroke-linecap="round"/>
-  <circle cx="256" cy="256" r="54" fill="#fff" stroke="#111114" stroke-width="28"/>
-  <text x="256" y="431" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="900" fill="#fff" letter-spacing="-6">DP</text>
+  <circle cx="256" cy="256" r="150" fill="#fff"/>
+  <path d="M106 256a150 150 0 0 1 300 0H106Z" fill="#e32222"/>
+  <path d="M106 256h300" stroke="#111114" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="56" fill="#fff" stroke="#111114" stroke-width="26"/>
+  <circle cx="256" cy="256" r="28" fill="#e32222"/>
 </svg>
