@@ -621,11 +621,21 @@
 
   function updateHomeDexPreviewLayout() {
     const preview = $("openDexHome");
-    if (!preview) return;
-    const availableHeight = preview.clientHeight || 0;
-    const gap = typeof window !== "undefined" && window.innerWidth < 621 ? 3 : 6;
+    const card = $("pokedexProgress")?.closest(".status-card");
+    if (!preview || !card) return;
+    const cardRect = card.getBoundingClientRect();
+    const statRow = card.querySelector(".stat-row");
+    const hint = card.querySelector(".dex-hint");
+    const style = window.getComputedStyle(card);
+    const paddingTop = Number.parseFloat(style.paddingTop) || 0;
+    const paddingBottom = Number.parseFloat(style.paddingBottom) || 0;
+    const gap = Number.parseFloat(style.rowGap || style.gap) || 0;
+    const statHeight = statRow?.getBoundingClientRect().height || 0;
+    const hintHeight = hint?.getBoundingClientRect().height || 0;
+    const availableHeight = Math.max(0, Math.floor(cardRect.height - paddingTop - paddingBottom - statHeight - hintHeight - gap * 2));
+    const spriteGap = typeof window !== "undefined" && window.innerWidth < 621 ? 3 : 6;
     const defaultRowHeight = homeDexDefaultRowHeight();
-    const rows = Math.max(1, Math.floor((availableHeight + gap) / (defaultRowHeight + gap)));
+    const rows = Math.max(1, Math.floor((availableHeight + spriteGap) / (defaultRowHeight + spriteGap)));
     state.homeDexPreviewRows = rows;
     preview.style.setProperty("--pokedex-row-height", rows === 1 ? `${Math.max(availableHeight, defaultRowHeight)}px` : `${defaultRowHeight}px`);
     preview.style.setProperty("--pokedex-preview-rows", String(rows));
