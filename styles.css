@@ -30,9 +30,9 @@ body {
   transition:background .2s,color .2s;
   padding-bottom:env(safe-area-inset-bottom);
 }
-body.is-home { height:100svh; overflow:hidden; }
-body.is-lesson { height:100svh; overflow:hidden; }
-body.is-quick { height:100svh; overflow:hidden; }
+body.is-home { height:var(--app-height); overflow:hidden; }
+body.is-lesson { height:var(--app-height); overflow:hidden; }
+body.is-quick { height:var(--app-height); overflow:hidden; }
 body::before {
   content:"";
   position:fixed;
@@ -91,9 +91,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 }
 
 .shell { position:relative; width:min(1160px,calc(100% - 28px)); margin:18px auto 24px; }
-body.is-home .shell { height:calc(100svh - 92px); margin-bottom:0; overflow:hidden; }
-body.is-lesson .shell { height:calc(100svh - 92px); margin-bottom:0; overflow:hidden; }
-body.is-quick .shell { height:calc(100svh - 92px); margin-bottom:0; overflow:hidden; }
+body.is-home .shell { height:calc(var(--app-height) - 92px); margin-bottom:0; overflow:hidden; }
+body.is-lesson .shell { height:calc(var(--app-height) - 92px); margin-bottom:0; overflow:hidden; }
+body.is-quick .shell { height:calc(var(--app-height) - 92px); margin-bottom:0; overflow:hidden; }
 [hidden] { display:none!important; }
 .home-view { max-width:760px; height:100%; min-height:0; margin:0 auto; display:grid; grid-template-rows:auto auto minmax(0,1fr); gap:10px; align-items:stretch; overflow:hidden; }
 .card, .counter-panel, .quiz-side > *, .lesson-view, .settings-shell {

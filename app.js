@@ -973,6 +973,7 @@
   }
 
   function nextLessonQuestion() {
+    dismissActiveTyping();
     if (!state.lessonQueue.length) return finishLesson();
     state.lessonCurrent = state.lessonQueue.shift();
     state.lessonIndex++;
@@ -1059,6 +1060,7 @@
 
   function checkLessonAnswer() {
     if (state.lessonChecked || !state.lessonCurrent) return;
+    dismissActiveTyping();
     const question = state.lessonCurrent;
     const record = question.record;
     let ok = false;
@@ -1083,6 +1085,12 @@
     $("lessonHint").hidden = true;
     $("lessonNext").hidden = false;
     saveRecords();
+  }
+
+  function dismissActiveTyping() {
+    const active = document.activeElement;
+    if (active?.matches?.("#lessonText, #quickEntry")) active.blur();
+    hideMobileKeyboard();
   }
 
   function markLessonOptions() {
