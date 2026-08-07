@@ -645,7 +645,7 @@
     const rowsThatFit = Math.max(1, Math.floor((availableHeight + spriteGap) / (defaultRowHeight + spriteGap)));
     const rows = Math.min(homeDexMaxRows(), rowsThatFit);
     const rowHeight = Math.max(28, Math.floor((availableHeight - spriteGap * (rows - 1)) / rows));
-    const gridHeight = availableHeight;
+    const gridHeight = rows * rowHeight + spriteGap * (rows - 1);
     state.homeDexPreviewRows = rows;
     preview.style.setProperty("--pokedex-row-height", `${rowHeight}px`);
     preview.style.setProperty("--pokedex-grid-height", `${gridHeight}px`);
