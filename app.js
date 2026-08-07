@@ -158,7 +158,6 @@
     document.addEventListener("pointerdown", startPressEffect);
     document.addEventListener("pointerup", endPressEffect);
     document.addEventListener("pointercancel", endPressEffect);
-    document.addEventListener("pointerdown", handleMobileKeyboardDismiss, true);
   }
 
   function startPressEffect(event) {
@@ -191,9 +190,11 @@
 
   function initMobileTyping() {
     const keyboard = $("mobileKeyboard");
+    const keyboardKeys = $("mobileKeyboardKeys");
     if (!keyboard) return;
-    keyboard.replaceChildren(...mobileKeyboardRows().map(createMobileKeyboardRow));
+    if (keyboardKeys) keyboardKeys.replaceChildren(...mobileKeyboardRows().map(createMobileKeyboardRow));
     keyboard.addEventListener("click", handleMobileKeyboardClick);
+    $("mobileKeyboardClose")?.addEventListener("click", hideMobileKeyboard);
     document.addEventListener("pointerdown", handleMobileTypingPointer, true);
     syncMobileTypingMode();
   }
@@ -202,8 +203,7 @@
     return [
       {kind:"letters", keys:["q","w","e","r","t","y","u","i","o","p"]},
       {kind:"letters", keys:["a","s","d","f","g","h","j","k","l"]},
-      {kind:"letters", keys:["z","x","c","v","b","n","m","-","backspace"]},
-      {kind:"numbers", keys:["1","2","3","4","5","6","7","8","9","0"]},
+      {kind:"letters", keys:["z","x","c","v","b","n","m","backspace"]},
       {kind:"space", keys:["space"]}
     ];
   }
@@ -215,12 +215,15 @@
     keys.forEach(key => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "mobile-key" + (key === "space" ? " is-space" : "") + (key === "backspace" ? " is-action" : "") + (key === "-" ? " is-hyphen" : "") + (key === "space" ? " is-wide" : "");
+      button.className = "mobile-key" + (key === "space" ? " is-space" : "") + (key === "backspace" ? " is-action" : "") + (key === "space" ? " is-wide" : "");
       button.dataset.key = key;
       button.textContent = key === "space" ? "space" : key === "backspace" ? "⌫" : key.toUpperCase();
-      button.setAttribute("aria-label", key === "space" ? "Space" : key === "backspace" ? "Backspace" : key === "-" ? "Hyphen" : key.toUpperCase());
+      button.setAttribute("aria-label", key === "space" ? "Space" : key === "backspace" ? "Backspace" : key.toUpperCase());
       row.append(button);
     });
+    if (rowDef.kind === "letters" && keys.length === 8 && row.firstElementChild) {
+      row.firstElementChild.style.gridColumnStart = "2";
+    }
     return row;
   }
 
@@ -298,15 +301,6 @@
     if (!state.mobileTypingEnabled) return;
     event.preventDefault();
     setMobileTypingTarget(input);
-  }
-
-  function handleMobileKeyboardDismiss(event) {
-    if (!state.mobileTypingEnabled || !state.mobileTypingTarget) return;
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-    if (target.closest("#mobileKeyboard")) return;
-    if (target.closest("#quickEntry, #lessonText")) return;
-    hideMobileKeyboard();
   }
 
   function setMobileTypingTarget(input) {

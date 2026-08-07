@@ -221,7 +221,15 @@
     </section>
   </main>
 
-  <div class="mobile-keyboard" id="mobileKeyboard" hidden aria-label="Mobile keyboard"></div>
+  <div class="mobile-keyboard" id="mobileKeyboard" hidden aria-label="Mobile keyboard">
+    <div class="mobile-keyboard__bar">
+      <span>Keyboard</span>
+    </div>
+    <div class="mobile-keyboard__keys" id="mobileKeyboardKeys"></div>
+    <div class="mobile-keyboard__footer">
+      <button class="mobile-keyboard__close" id="mobileKeyboardClose" type="button">Close</button>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
