@@ -607,7 +607,7 @@
   }
 
   function homeDexDefaultRowHeight() {
-    return typeof window !== "undefined" && window.innerWidth < 621 ? 34 : 52;
+    return typeof window !== "undefined" && window.innerWidth < 621 ? 30 : 52;
   }
 
   function homeDexPreviewRows() {
