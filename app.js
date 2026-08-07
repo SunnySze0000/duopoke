@@ -616,7 +616,7 @@
 
   function homeDexMaxRows() {
     if (typeof window === "undefined") return 2;
-    if (window.innerWidth < 621) return viewportHeight() < 740 ? 1 : 2;
+    if (window.innerWidth < 621) return 1;
     if (window.innerWidth < 921) return 2;
     return 4;
   }
