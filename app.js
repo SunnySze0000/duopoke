@@ -390,15 +390,15 @@
 
   function homeDexSampleCount() {
     const height = typeof window === "undefined" ? 820 : viewportHeight();
-    if (height < 720) return 6;
-    if (height < 860) return 12;
-    if (height < 1020) return 18;
+    if (height < 760) return 6;
+    if (height < 900) return 9;
+    if (height < 1040) return 12;
     return 24;
   }
 
   function compactHomeActions() {
     const height = typeof window === "undefined" ? 820 : viewportHeight();
-    return height < 720;
+    return height < 760;
   }
 
   function exportData() {

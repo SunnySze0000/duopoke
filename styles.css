@@ -382,8 +382,8 @@ select, input { min-height:40px; border:1px solid var(--line); border-radius:16p
   .primary, .secondary { width:100%; min-height:44px; padding:0 13px; }
   .status-card { padding:14px; gap:8px; }
   .stat-row { padding:0; }
-  .mini-sprites { grid-template-columns:repeat(6,1fr); gap:4px; }
-  .mini-sprites img { padding:2px; border-radius:9px; }
+  .mini-sprites { min-height:42px; grid-template-columns:repeat(6,minmax(0,1fr)); grid-auto-rows:minmax(30px,1fr); gap:3px; }
+  .mini-sprites img { min-width:0; min-height:0; padding:1px; border-radius:8px; }
   .dex-shell { padding:10px; gap:10px; }
   .dex-sticky { top:48px; gap:8px; margin:-10px -10px 0; padding:10px; border-radius:24px 24px 14px 14px; }
   .dex-compact .dex-sticky { grid-template-columns:auto minmax(0,1fr); gap:6px; padding:6px 7px; }
@@ -500,6 +500,8 @@ select, input { min-height:40px; border:1px solid var(--line); border-radius:16p
   .home-view.is-compact-actions .mode-card { padding:9px 12px; }
   .lead { font-size:12px; }
   .status-card { padding:10px; }
+  .mini-sprites { min-height:36px; grid-auto-rows:minmax(26px,1fr); gap:2px; }
+  .mini-sprites img { border-radius:7px; }
   .panel-head h2 { font-size:22px; }
   .path { display:none; }
   .lesson-view { padding:7px; gap:6px; }
