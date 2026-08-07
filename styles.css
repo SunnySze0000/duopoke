@@ -167,7 +167,7 @@ body.is-lesson .shell { height:calc(100svh - 92px); margin-bottom:0; overflow:hi
 .pokedex-card { background:rgba(255,255,255,.86); }
 .stat-row { display:flex; justify-content:space-between; gap:12px; padding:0; color:var(--muted); }
 .stat-row strong { color:var(--text); }
-.mini-sprites { min-height:50px; display:grid; grid-template-columns:repeat(6,minmax(44px,1fr)); grid-auto-rows:minmax(44px,1fr); gap:6px; width:100%; padding:0; border:0; background:transparent; overflow:hidden; }
+.mini-sprites { min-height:50px; display:grid; grid-template-columns:repeat(6,minmax(44px,1fr)); grid-auto-rows:clamp(44px,6vw,52px); align-content:start; gap:6px; width:100%; padding:0; border:0; background:transparent; overflow:hidden; }
 .mini-sprites.is-pressing { transform:scale(.985); }
 .mini-sprites img { width:100%; height:100%; min-width:44px; min-height:44px; aspect-ratio:1; object-fit:contain; padding:4px; border-radius:14px; background:#f7f7f8; border:1px solid var(--line-soft); transition:transform .18s, box-shadow .18s; }
 .dex-entrypoint:hover img { transform:translateY(-2px); box-shadow:none; }
@@ -382,7 +382,7 @@ select, input { min-height:40px; border:1px solid var(--line); border-radius:16p
   .primary, .secondary { width:100%; min-height:44px; padding:0 13px; }
   .status-card { padding:14px; gap:8px; }
   .stat-row { padding:0; }
-  .mini-sprites { min-height:42px; grid-template-columns:repeat(6,minmax(0,1fr)); grid-auto-rows:minmax(30px,1fr); gap:3px; }
+  .mini-sprites { min-height:42px; grid-template-columns:repeat(6,minmax(0,1fr)); grid-auto-rows:clamp(30px,8vw,40px); align-content:start; gap:3px; }
   .mini-sprites img { min-width:0; min-height:0; padding:1px; border-radius:8px; }
   .dex-shell { padding:10px; gap:10px; }
   .dex-sticky { top:48px; gap:8px; margin:-10px -10px 0; padding:10px; border-radius:24px 24px 14px 14px; }
@@ -500,7 +500,7 @@ select, input { min-height:40px; border:1px solid var(--line); border-radius:16p
   .home-view.is-compact-actions .mode-card { padding:9px 12px; }
   .lead { font-size:12px; }
   .status-card { padding:10px; }
-  .mini-sprites { min-height:36px; grid-auto-rows:minmax(26px,1fr); gap:2px; }
+  .mini-sprites { min-height:36px; grid-auto-rows:clamp(26px,8vw,34px); align-content:start; gap:2px; }
   .mini-sprites img { border-radius:7px; }
   .panel-head h2 { font-size:22px; }
   .path { display:none; }
