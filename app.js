@@ -27,6 +27,8 @@
     quickStarted: false,
     lessonSessionActive: false,
     dexAdmin: false,
+    mobileTypingEnabled: false,
+    mobileTypingTarget: null,
     records: loadRecords()
   };
   state.quickJump = null;
@@ -36,6 +38,7 @@
   async function init() {
     bindEvents();
     bindViewportEvents();
+    initMobileTyping();
     state.data = POKEMON_DATA;
     normalizeData();
     fillSelectors();
@@ -167,6 +170,7 @@
       clearTimeout(bindViewportEvents.timer);
       bindViewportEvents.timer = setTimeout(() => {
         updateViewportMetrics();
+        syncMobileTypingMode();
         if (state.view === "home") renderHome();
       }, 120);
     };
@@ -175,6 +179,179 @@
     window.visualViewport?.addEventListener("resize", scheduleViewportUpdate);
     window.visualViewport?.addEventListener("scroll", scheduleViewportUpdate);
     window.addEventListener("scroll", updateDexStickyState, {passive:true});
+  }
+
+  function initMobileTyping() {
+    const keyboard = $("mobileKeyboard");
+    if (!keyboard) return;
+    keyboard.replaceChildren(...mobileKeyboardRows().map(createMobileKeyboardRow));
+    keyboard.addEventListener("click", handleMobileKeyboardClick);
+    document.addEventListener("focusin", handleMobileTypingFocus, true);
+    document.addEventListener("pointerdown", handleMobileTypingPointer, true);
+    syncMobileTypingMode();
+  }
+
+  function mobileKeyboardRows() {
+    return [
+      ["q","w","e","r","t","y","u","i","o","p"],
+      ["a","s","d","f","g","h","j","k","l"],
+      ["z","x","c","v","b","n","m"],
+      ["space","backspace","enter"]
+    ];
+  }
+
+  function createMobileKeyboardRow(keys) {
+    const row = document.createElement("div");
+    row.className = "mobile-keyboard__row" + (keys.length === 3 ? " is-controls" : "");
+    keys.forEach(key => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "mobile-key" + (key === "space" ? " is-space" : "") + (key === "backspace" || key === "enter" ? " is-action" : "") + (key === "space" ? " is-wide" : "");
+      button.dataset.key = key;
+      button.textContent = key === "space" ? "Space" : key === "backspace" ? "⌫" : key === "enter" ? "Enter" : key.toUpperCase();
+      button.setAttribute("aria-label", key === "space" ? "Space" : key === "backspace" ? "Backspace" : key === "enter" ? "Enter" : key.toUpperCase());
+      row.append(button);
+    });
+    return row;
+  }
+
+  function isMobileTypingMode() {
+    if (typeof window === "undefined") return false;
+    const coarse = window.matchMedia?.("(pointer: coarse)")?.matches;
+    const noHover = window.matchMedia?.("(hover: none)")?.matches;
+    return Boolean(coarse && noHover);
+  }
+
+  function syncMobileTypingMode() {
+    state.mobileTypingEnabled = isMobileTypingMode();
+    const keyboard = $("mobileKeyboard");
+    if (!keyboard) return;
+    if (!state.mobileTypingEnabled) {
+      state.mobileTypingTarget = null;
+      keyboard.hidden = true;
+      document.body.classList.remove("mobile-keyboard-open");
+      document.documentElement.style.setProperty("--mobile-keyboard-height", "0px");
+      syncTypingInputs();
+      return;
+    }
+    syncTypingInputs();
+    if (state.mobileTypingTarget) showMobileKeyboard();
+  }
+
+  function syncTypingInputs() {
+    const inputs = [$("quickEntry"), $("lessonText")].filter(Boolean);
+    inputs.forEach(input => prepareTypingInput(input));
+  }
+
+  function prepareTypingInput(input) {
+    const enabled = state.mobileTypingEnabled;
+    input.readOnly = enabled;
+    input.inputMode = enabled ? "none" : "text";
+    if (!input.dataset.mobileTypingBound) {
+      input.dataset.mobileTypingBound = "1";
+      input.addEventListener("focus", () => {
+        if (state.mobileTypingEnabled) setMobileTypingTarget(input);
+      });
+      input.addEventListener("pointerdown", event => {
+        if (!state.mobileTypingEnabled) return;
+        event.preventDefault();
+        setMobileTypingTarget(input);
+      });
+    }
+  }
+
+  function handleMobileTypingFocus(event) {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!state.mobileTypingEnabled) return;
+    if (input.id !== "quickEntry" && input.id !== "lessonText") return;
+    setMobileTypingTarget(input);
+  }
+
+  function handleMobileTypingPointer(event) {
+    const input = event.target.closest?.("#quickEntry, #lessonText");
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!state.mobileTypingEnabled) return;
+    event.preventDefault();
+    setMobileTypingTarget(input);
+  }
+
+  function setMobileTypingTarget(input) {
+    if (!state.mobileTypingEnabled || !input || !document.contains(input)) return;
+    state.mobileTypingTarget = input;
+    showMobileKeyboard();
+    input.focus({preventScroll:true});
+    queueMobileKeyboardResize();
+  }
+
+  function showMobileKeyboard() {
+    const keyboard = $("mobileKeyboard");
+    if (!keyboard || !state.mobileTypingEnabled) return;
+    keyboard.hidden = false;
+    document.body.classList.add("mobile-keyboard-open");
+    queueMobileKeyboardResize();
+  }
+
+  function hideMobileKeyboard() {
+    const keyboard = $("mobileKeyboard");
+    if (!keyboard) return;
+    state.mobileTypingTarget = null;
+    keyboard.hidden = true;
+    document.body.classList.remove("mobile-keyboard-open");
+    document.documentElement.style.setProperty("--mobile-keyboard-height", "0px");
+  }
+
+  function queueMobileKeyboardResize() {
+    clearTimeout(queueMobileKeyboardResize.timer);
+    queueMobileKeyboardResize.timer = setTimeout(updateMobileKeyboardHeight, 0);
+  }
+
+  function updateMobileKeyboardHeight() {
+    const keyboard = $("mobileKeyboard");
+    if (!keyboard || keyboard.hidden) {
+      document.documentElement.style.setProperty("--mobile-keyboard-height", "0px");
+      return;
+    }
+    document.documentElement.style.setProperty("--mobile-keyboard-height", `${Math.ceil(keyboard.getBoundingClientRect().height)}px`);
+  }
+
+  function handleMobileKeyboardClick(event) {
+    const button = event.target.closest?.("button[data-key]");
+    if (!button || !state.mobileTypingEnabled) return;
+    event.preventDefault();
+    event.stopPropagation();
+    applyMobileKeyboardKey(button.dataset.key);
+  }
+
+  function applyMobileKeyboardKey(key) {
+    const input = state.mobileTypingTarget;
+    if (!input || !document.contains(input)) return;
+    if (key === "enter") {
+      if (input.id === "quickEntry") {
+        $("quickForm")?.requestSubmit();
+      } else if (input.id === "lessonText") {
+        checkLessonAnswer();
+      }
+      return;
+    }
+    const value = input.value || "";
+    const start = typeof input.selectionStart === "number" ? input.selectionStart : value.length;
+    const end = typeof input.selectionEnd === "number" ? input.selectionEnd : value.length;
+    let next = value;
+    if (key === "backspace") {
+      next = start === end ? value.slice(0, Math.max(0, start - 1)) + value.slice(end) : value.slice(0, start) + value.slice(end);
+    } else if (key === "space") {
+      next = value.slice(0, start) + " " + value.slice(end);
+    } else {
+      next = value.slice(0, start) + key + value.slice(end);
+    }
+    input.value = next;
+    input.dispatchEvent(new Event("input", {bubbles:true}));
+    input.focus({preventScroll:true});
+    const position = key === "backspace" ? Math.max(0, start - (start === end ? 1 : 0)) : key === "space" ? start + 1 : start + key.length;
+    requestAnimationFrame(() => {
+      try { input.setSelectionRange(position, position); } catch {}
+    });
   }
 
   function viewportHeight() {
@@ -322,6 +499,7 @@
     state.view = view;
     document.body.classList.toggle("is-home", view === "home");
     document.body.classList.toggle("is-lesson", view === "lesson");
+    document.body.classList.toggle("is-quick", view === "quick");
     $("homeView").hidden = view !== "home";
     $("dexView").hidden = view !== "dex";
     $("lessonView").hidden = view !== "lesson";
@@ -330,6 +508,7 @@
     $("navLesson").classList.toggle("active", view === "lesson");
     $("navQuick").classList.toggle("active", view === "quick");
     $("navSettings").classList.toggle("active", view === "settings");
+    if (view === "lesson" || view === "quick") hideMobileKeyboard();
     if (view === "lesson") {
       renderLessonIntro();
       renderLessonShell();
@@ -338,6 +517,7 @@
       updateQuickControlsVisibility();
       setTimeout(() => $("quickEntry").focus(), 50);
     }
+    if (view !== "quick" && view !== "lesson") hideMobileKeyboard();
     if (view === "home") renderHome();
     if (view === "dex") renderDex();
     updateDexStickyState();
@@ -764,6 +944,7 @@
       appendLessonSprite(record);
       renderOptions(question.options, type => typeChip(type), type => type);
     }
+    syncTypingInputs();
     $("lessonAnswers").querySelectorAll("input").forEach(input => input.addEventListener("keydown", event => { if (event.key === "Enter") checkLessonAnswer(); }));
   }
 
@@ -887,6 +1068,7 @@
     $("quickCount").textContent = count;
     $("quickTotal").textContent = total;
     updateQuickEntryPrompt();
+    syncTypingInputs();
     $("quickDial").style.setProperty("--progress", pct + "%");
     updateQuickSpriteVisibility();
     renderQuickList();
