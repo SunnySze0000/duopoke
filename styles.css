@@ -1,5 +1,6 @@
 :root {
   color-scheme: light;
+  --app-height:100svh;
   --bg:#f6f6f7;
   --bg-2:#ffffff;
   --panel:rgba(255,255,255,.84);
@@ -363,8 +364,8 @@ select, input { min-height:40px; border:1px solid var(--line); border-radius:16p
   .nav-btn { min-height:34px; }
   .nav-btn { padding:0 9px; font-size:12px; }
   .shell { width:calc(100% - 14px); margin-top:7px; margin-bottom:calc(8px + env(safe-area-inset-bottom)); }
-  body.is-home .shell { height:calc(100svh - 63px); margin-bottom:0; }
-  body.is-lesson .shell { height:calc(100svh - 63px); margin-bottom:0; }
+  body.is-home .shell { height:calc(var(--app-height) - 63px); margin-bottom:0; }
+  body.is-lesson .shell { height:calc(var(--app-height) - 63px); margin-bottom:0; }
   .home-view { height:100%; min-height:0; gap:8px; }
   .lesson-view, .quick-layout { gap:8px; }
   .app-hero { padding:18px 14px 20px; gap:7px; }
@@ -489,8 +490,8 @@ select, input { min-height:40px; border:1px solid var(--line); border-radius:16p
 
 @media (max-width:620px) and (max-height:740px) {
   .shell { margin-top:5px; }
-  body.is-home .shell { height:calc(100svh - 57px); }
-  body.is-lesson .shell { height:calc(100svh - 57px); }
+  body.is-home .shell { height:calc(var(--app-height) - 57px); }
+  body.is-lesson .shell { height:calc(var(--app-height) - 57px); }
   .app-hero { padding:10px 12px 12px; }
   .app-mark { width:46px; height:46px; border-radius:16px; }
   .app-mark span { width:28px; height:28px; }
