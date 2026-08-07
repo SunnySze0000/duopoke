@@ -617,7 +617,14 @@
   }
 
   function homeDexPreviewRows() {
-    return state.homeDexPreviewRows || 1;
+    return Math.min(state.homeDexPreviewRows || 1, homeDexMaxRows());
+  }
+
+  function homeDexMaxRows() {
+    if (typeof window === "undefined") return 2;
+    if (window.innerWidth < 621) return viewportHeight() < 740 ? 1 : 2;
+    if (window.innerWidth < 921) return 2;
+    return 4;
   }
 
   function queueHomeDexPreviewLayoutUpdate() {
@@ -641,9 +648,13 @@
     const availableHeight = Math.max(0, Math.floor(cardRect.height - paddingTop - paddingBottom - statHeight - hintHeight - gap * 2));
     const spriteGap = typeof window !== "undefined" && window.innerWidth < 621 ? 3 : 6;
     const defaultRowHeight = homeDexDefaultRowHeight();
-    const rows = Math.max(1, Math.floor((availableHeight + spriteGap) / (defaultRowHeight + spriteGap)));
+    const rowsThatFit = Math.max(1, Math.floor((availableHeight + spriteGap) / (defaultRowHeight + spriteGap)));
+    const rows = Math.min(homeDexMaxRows(), rowsThatFit);
+    const rowHeight = Math.max(28, rows === 1 ? Math.max(availableHeight, defaultRowHeight) : Math.min(defaultRowHeight, Math.floor((availableHeight - spriteGap * (rows - 1)) / rows)));
+    const gridHeight = rows * rowHeight + spriteGap * (rows - 1);
     state.homeDexPreviewRows = rows;
-    preview.style.setProperty("--pokedex-row-height", rows === 1 ? `${Math.max(availableHeight, defaultRowHeight)}px` : `${defaultRowHeight}px`);
+    preview.style.setProperty("--pokedex-row-height", `${rowHeight}px`);
+    preview.style.setProperty("--pokedex-grid-height", `${gridHeight}px`);
     preview.style.setProperty("--pokedex-preview-rows", String(rows));
     preview.classList.toggle("is-two-row", rows === 2);
     preview.classList.toggle("is-one-row", rows === 1);
