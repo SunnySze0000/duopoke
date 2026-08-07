@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111114">
+  <title>Duopoke</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="gridwash" aria-hidden="true"></div>
+  <header class="topbar">
+    <button class="brand" id="homeBtn" type="button" aria-label="Home">
+      <span class="signal"></span>
+      <span>DUOPOKE</span>
+    </button>
+    <nav class="nav-actions" aria-label="Primary">
+      <button class="nav-btn" id="navLesson" type="button">Lesson</button>
+      <button class="nav-btn" id="navQuick" type="button">Quiz</button>
+      <button class="nav-btn" id="navSettings" type="button">Settings</button>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="view home-view" id="homeView">
+      <div class="app-hero">
+        <div class="app-mark" aria-hidden="true"><span></span></div>
+        <p class="kicker">Pokemon memory trainer</p>
+        <h1 class="app-title">DUOPOKE</h1>
+        <p class="lead">Daily recall for names, sprites, types, and regions.</p>
+      </div>
+
+      <div class="home-actions" aria-label="Training choices">
+        <article class="mode-card lesson-mode">
+          <div>
+            <span class="mode-eyebrow">Lesson</span>
+            <h2 id="lessonModeState">Kanto lesson</h2>
+            <p id="lessonModeCopy">Build recall with guided Pokemon prompts.</p>
+          </div>
+          <div class="mode-buttons">
+            <button class="primary" id="continueLessonHome" type="button" hidden>Continue</button>
+            <button class="secondary" id="startLessonHome" type="button">Start</button>
+          </div>
+        </article>
+
+        <article class="mode-card quiz-mode">
+          <div>
+            <span class="mode-eyebrow">Quiz</span>
+            <h2 id="quizModeState">All regions quiz</h2>
+            <p id="quizModeCopy">Type every Pokemon you can remember.</p>
+          </div>
+          <div class="mode-buttons">
+            <button class="primary" id="continueQuickHome" type="button" hidden>Continue</button>
+            <button class="secondary" id="startQuickHome" type="button">Start</button>
+          </div>
+        </article>
+      </div>
+
+      <aside class="status-card pokedex-card">
+        <div class="stat-row"><span>Pokedex</span><strong id="pokedexProgress">0 / 0</strong></div>
+        <button class="mini-sprites dex-entrypoint" id="openDexHome" type="button" aria-label="Open Pokedex"></button>
+        <p class="dex-hint">Tap to open Pokedex</p>
+      </aside>
+    </section>
+
+    <section class="view dex-view" id="dexView" hidden>
+      <div class="dex-shell">
+        <div class="dex-sticky">
+          <div class="panel-head dex-head">
+            <div>
+              <p class="kicker">Pokedex</p>
+              <h2>Dex</h2>
+              <p class="subtle" id="dexSummary">0/0 entries learned.</p>
+            </div>
+          </div>
+          <div class="dex-toolbar">
+            <label><span>Region</span><select id="dexRegion"><option value="all">All regions</option></select></label>
+            <label><span>Status</span><select id="dexFilter"><option value="all">All entries</option><option value="learned">Learned only</option><option value="unlearned">Not learned</option></select></label>
+            <button class="secondary admin-toggle" id="dexAdminToggle" type="button" aria-pressed="false">Admin</button>
+          </div>
+        </div>
+        <div class="dex-grid" id="dexGrid"></div>
+      </div>
+    </section>
+
+    <section class="view lesson-view" id="lessonView" hidden>
+      <div class="panel-head">
+        <div>
+          <h2 id="lessonTitle">Kanto</h2>
+          <p class="subtle" id="lessonSubtitle" hidden></p>
+        </div>
+        <button class="secondary tiny-btn" id="restartLesson" type="button" hidden>Restart Lesson</button>
+      </div>
+      <div class="path" id="regionPath"></div>
+      <article class="card lesson-card" id="lessonCard" hidden>
+        <div class="question-head">
+          <div>
+            <span class="tag" id="lessonKind">Question</span>
+            <h3 id="lessonQuestion">Question</h3>
+          </div>
+          <span class="pill" id="lessonCounter">1 / 18</span>
+        </div>
+        <div class="prompt-area" id="lessonPrompt"></div>
+        <div id="lessonAnswers"></div>
+        <div class="feedback" id="lessonFeedback" hidden></div>
+        <div class="bottom-actions">
+          <button class="secondary" id="lessonHint" type="button">Hint</button>
+          <button class="primary" id="lessonCheck" type="button">Check</button>
+          <button class="primary" id="lessonNext" type="button" hidden>Continue</button>
+        </div>
+      </article>
+      <div class="card lesson-empty" id="lessonEmpty">
+        <div class="setup-copy">
+          <h3>Lesson setup</h3>
+        </div>
+        <div class="lesson-controls" aria-label="Lesson setup">
+          <div class="setup-picker">
+            <span>Scope</span>
+            <details id="lessonScopeMenu">
+              <summary id="lessonScopeSummary">Regional</summary>
+              <div class="setup-menu">
+                <button type="button" data-lesson-scope="regional">Regional</button>
+                <button type="button" data-lesson-scope="national">National</button>
+              </div>
+            </details>
+            <select id="lessonScope" aria-label="Lesson scope" hidden><option value="regional">Regional</option><option value="national">National</option></select>
+          </div>
+          <div class="setup-picker">
+            <span>Region</span>
+            <details id="regionMenu">
+              <summary id="regionSummary">Kanto</summary>
+              <div class="setup-menu" id="regionOptions"></div>
+            </details>
+            <select id="regionSelect" aria-label="Region" hidden></select>
+          </div>
+          <div class="question-picker setup-picker">
+            <span>Questions</span>
+            <details id="lessonQuestionMenu">
+              <summary id="lessonQuestionSummary">Choose types</summary>
+              <div class="question-menu" role="group" aria-label="Question types">
+                <label><input type="checkbox" name="lessonKind" value="spriteName" checked> Sprite to name</label>
+                <label><input type="checkbox" name="lessonKind" value="nameSprite"> Name to sprite</label>
+                <label><input type="checkbox" name="lessonKind" value="type"> Type match</label>
+              </div>
+            </details>
+          </div>
+        </div>
+        <button class="primary" id="startLessonBtn" type="button">Start Lesson</button>
+      </div>
+    </section>
+
+    <section class="view quick-view" id="quickView" hidden>
+      <div class="quick-layout">
+        <section class="counter-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="kicker">Quick Quiz</p>
+              <h2>Name the Dex</h2>
+            </div>
+            <button class="secondary tiny-btn" id="resetQuick" type="button">Reset</button>
+          </div>
+          <div class="dial" id="quickDial" style="--progress:0%">
+            <div>
+              <span>Found</span>
+              <strong id="quickCount">0</strong>
+              <small><span id="quickTotal">0</span> total</small>
+            </div>
+          </div>
+          <form class="entry-form" id="quickForm" autocomplete="off">
+            <label for="quickEntry">Type a name</label>
+            <div class="entry-line"><span>&gt;</span><input id="quickEntry" placeholder="Type a name to start the quiz" spellcheck="false" autocomplete="off" autocapitalize="off" enterkeyhint="go"><button type="submit">Enter</button></div>
+          </form>
+          <output class="toast" id="quickToast" aria-live="polite"></output>
+        </section>
+        <aside class="quiz-side">
+          <div class="sprite-stage" id="quickSpriteStage">
+            <img id="quickSprite" alt="" hidden>
+          </div>
+          <div class="chooser-card">
+            <label><span>Scope</span><select id="quickScope"><option value="base">Base forms</option><option value="mega">Mega forms</option></select></label>
+            <label><span>Region</span><select id="quickRegion"><option value="all">All regions</option></select></label>
+          </div>
+          <div class="found-card">
+            <div class="found-head"><span>Full index</span><button class="secondary tiny-btn" id="toggleList" type="button">Top</button></div>
+            <ol id="quickList"></ol>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view settings-view" id="settingsView" hidden>
+      <div class="settings-shell">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Settings</p>
+            <h2>Data</h2>
+            <p class="subtle">Import or export your local Duopoke progress.</p>
+          </div>
+        </div>
+        <div class="settings-actions">
+          <button class="primary" id="importDataBtn" type="button">Import</button>
+          <button class="secondary" id="exportDataBtn" type="button">Export</button>
+          <input id="importDataInput" type="file" accept="application/json,.json" hidden>
+        </div>
+        <p class="settings-note">Please wait for further update.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
