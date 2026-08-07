@@ -53,17 +53,20 @@
   function loadRecords() {
     const fallback = {
       lesson: {unlockedGen:1, mastery:{}, mistakes:{}, lit:{}, settings:{scope:"regional", kinds:["spriteName"]}, session:{active:false, selectedGen:1, queue:[], current:null, index:0, correct:0, wrong:0, selected:[], checked:false}},
-      quick: {scope:"base", region:"all", found:{}, attempts:0, streak:0, recent:[], lastSprite:null}
+      quick: {scope:"base", region:"all", found:{}, attempts:0, streak:0, recent:[], lastSprite:null},
+      preferences: {mobileKeyboard:true}
     };
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
       if (!saved) return fallback;
       const quick = {...fallback.quick, ...(saved.quick || {})};
+      const preferences = {...fallback.preferences, ...(saved.preferences || {})};
       if (quick.scope === "all") quick.scope = "base";
       return {
         ...fallback,
         lesson:{...fallback.lesson, ...(saved.lesson || {}), settings:{...fallback.lesson.settings, ...((saved.lesson || {}).settings || {})}, session:{...fallback.lesson.session, ...((saved.lesson || {}).session || {})}},
-        quick
+        quick,
+        preferences
       };
     } catch {
       return fallback;
@@ -146,6 +149,7 @@
     $("quickRegion").addEventListener("change", () => updateQuickSetting("region", $("quickRegion").value));
     $("resetQuick").addEventListener("click", resetQuick);
     $("toggleList").addEventListener("click", () => $("quickList").scrollTo({top:0, behavior:"smooth"}));
+    $("mobileKeyboardSetting")?.addEventListener("change", updateMobileKeyboardPreference);
     $("importDataBtn").addEventListener("click", () => $("importDataInput").click());
     $("importDataInput").addEventListener("change", importData);
     $("exportDataBtn").addEventListener("click", exportData);
@@ -193,23 +197,25 @@
 
   function mobileKeyboardRows() {
     return [
-      ["q","w","e","r","t","y","u","i","o","p"],
-      ["a","s","d","f","g","h","j","k","l"],
-      ["z","x","c","v","b","n","m"],
-      ["space","backspace","enter"]
+      {kind:"letters", keys:["q","w","e","r","t","y","u","i","o","p"]},
+      {kind:"letters", keys:["a","s","d","f","g","h","j","k","l"]},
+      {kind:"letters", keys:["z","x","c","v","b","n","m","-","backspace"]},
+      {kind:"numbers", keys:["1","2","3","4","5","6","7","8","9","0"]},
+      {kind:"space", keys:["space"]}
     ];
   }
 
-  function createMobileKeyboardRow(keys) {
+  function createMobileKeyboardRow(rowDef) {
+    const keys = rowDef.keys || [];
     const row = document.createElement("div");
-    row.className = "mobile-keyboard__row" + (keys.length === 3 ? " is-controls" : "");
+    row.className = "mobile-keyboard__row mobile-keyboard__row--" + rowDef.kind;
     keys.forEach(key => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "mobile-key" + (key === "space" ? " is-space" : "") + (key === "backspace" || key === "enter" ? " is-action" : "") + (key === "space" ? " is-wide" : "");
+      button.className = "mobile-key" + (key === "space" ? " is-space" : "") + (key === "backspace" ? " is-action" : "") + (key === "-" ? " is-hyphen" : "") + (key === "space" ? " is-wide" : "");
       button.dataset.key = key;
-      button.textContent = key === "space" ? "Space" : key === "backspace" ? "⌫" : key === "enter" ? "Enter" : key.toUpperCase();
-      button.setAttribute("aria-label", key === "space" ? "Space" : key === "backspace" ? "Backspace" : key === "enter" ? "Enter" : key.toUpperCase());
+      button.textContent = key === "space" ? "space" : key === "backspace" ? "⌫" : key.toUpperCase();
+      button.setAttribute("aria-label", key === "space" ? "Space" : key === "backspace" ? "Backspace" : key === "-" ? "Hyphen" : key.toUpperCase());
       row.append(button);
     });
     return row;
@@ -223,7 +229,7 @@
   }
 
   function syncMobileTypingMode() {
-    state.mobileTypingEnabled = isMobileTypingMode();
+    state.mobileTypingEnabled = isMobileTypingMode() && state.records.preferences?.mobileKeyboard !== false;
     const keyboard = $("mobileKeyboard");
     if (!keyboard) return;
     if (!state.mobileTypingEnabled) {
@@ -236,6 +242,25 @@
     }
     syncTypingInputs();
     if (state.mobileTypingTarget) showMobileKeyboard();
+  }
+
+  function updateMobileKeyboardPreference(event) {
+    const enabled = Boolean(event.target.checked);
+    state.records.preferences.mobileKeyboard = enabled;
+    saveRecords();
+    syncMobileTypingMode();
+    syncTypingInputs();
+  }
+
+  function syncSettingsControls() {
+    const input = $("mobileKeyboardSetting");
+    if (input) input.checked = state.records.preferences?.mobileKeyboard !== false;
+  }
+
+  function focusTypingInput(input) {
+    if (!input) return;
+    if (state.mobileTypingEnabled) return;
+    input.focus();
   }
 
   function syncTypingInputs() {
@@ -405,6 +430,7 @@
     syncLessonKindControls();
     $("quickScope").value = state.records.quick.scope;
     $("quickRegion").value = state.records.quick.region;
+    syncSettingsControls();
   }
 
   function option(value, text) {
@@ -515,7 +541,7 @@
     }
     if (view === "quick") {
       updateQuickControlsVisibility();
-      setTimeout(() => $("quickEntry").focus(), 50);
+      setTimeout(() => focusTypingInput($("quickEntry")), 50);
     }
     if (view !== "quick" && view !== "lesson") hideMobileKeyboard();
     if (view === "home") renderHome();
@@ -932,7 +958,7 @@
       $("lessonQuestion").textContent = "Who is this?";
       appendLessonSprite(record);
       $("lessonAnswers").innerHTML = `<div class="typed"><input id="lessonText" type="text" autocomplete="off" autocapitalize="off" enterkeyhint="go" placeholder="Type name"></div>`;
-      setTimeout(() => $("lessonText")?.focus(), 60);
+      setTimeout(() => focusTypingInput($("lessonText")), 60);
     } else if (question.kind === "nameSprite") {
       $("lessonKind").textContent = "Name to sprite";
       $("lessonQuestion").textContent = answerLabel(record);
@@ -1188,7 +1214,7 @@
     clearQuickSprite();
     saveRecords();
     renderQuick();
-    $("quickEntry").focus();
+    focusTypingInput($("quickEntry"));
   }
 
   function updateQuickControlsVisibility() {
