@@ -617,7 +617,7 @@ select, input { min-height:40px; border:1px solid var(--line); border-radius:16p
   .home-view.is-compact-actions .mode-card { padding:9px 12px; }
   .lead { font-size:12px; }
   .status-card { padding:10px; }
-  .mini-sprites { min-height:36px; grid-auto-rows:var(--pokedex-row-height,clamp(26px,8vw,34px)); align-content:stretch; gap:2px; height: 100%}
+  .mini-sprites { min-height:36px; grid-auto-rows:var(--pokedex-row-height,clamp(26px,8vw,34px)); align-content:start; gap:2px;}
   .mini-sprites img { border-radius:7px; }
   .mobile-keyboard { gap:5px; padding:7px max(7px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left)); }
   .mobile-keyboard__bar { font-size:10px; }
