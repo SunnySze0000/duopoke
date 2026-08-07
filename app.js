@@ -29,6 +29,7 @@
     dexAdmin: false,
     mobileTypingEnabled: false,
     mobileTypingTarget: null,
+    homeDexPreviewRows: 1,
     records: loadRecords()
   };
   state.quickJump = null;
@@ -175,6 +176,7 @@
       bindViewportEvents.timer = setTimeout(() => {
         updateViewportMetrics();
         syncMobileTypingMode();
+        queueHomeDexPreviewLayoutUpdate();
         if (state.view === "home") renderHome();
       }, 120);
     };
@@ -586,6 +588,7 @@
       startQuickHome.className = quizActive ? "secondary" : "primary";
     }
     $("pokedexProgress").textContent = `${litCount} / ${state.base.length}`;
+    queueHomeDexPreviewLayoutUpdate();
   }
 
   function quickFoundCount() {
@@ -595,10 +598,43 @@
   }
 
   function homeDexSampleCount() {
-    const height = typeof window === "undefined" ? 820 : viewportHeight();
-    if (height < 1100) return 6;
-    if (height < 1400) return 12;
-    return 24;
+    const columns = homeDexPreviewColumns();
+    return columns * homeDexPreviewRows();
+  }
+
+  function homeDexPreviewColumns() {
+    return typeof window !== "undefined" && window.innerWidth >= 921 ? 4 : 6;
+  }
+
+  function homeDexDefaultRowHeight() {
+    return typeof window !== "undefined" && window.innerWidth < 621 ? 34 : 52;
+  }
+
+  function homeDexPreviewRows() {
+    return state.homeDexPreviewRows || 1;
+  }
+
+  function queueHomeDexPreviewLayoutUpdate() {
+    clearTimeout(queueHomeDexPreviewLayoutUpdate.timer);
+    queueHomeDexPreviewLayoutUpdate.timer = setTimeout(updateHomeDexPreviewLayout, 0);
+  }
+
+  function updateHomeDexPreviewLayout() {
+    const preview = $("openDexHome");
+    if (!preview) return;
+    const availableHeight = preview.clientHeight || 0;
+    const gap = typeof window !== "undefined" && window.innerWidth < 621 ? 3 : 6;
+    const defaultRowHeight = homeDexDefaultRowHeight();
+    const rows = Math.max(1, Math.floor((availableHeight + gap) / (defaultRowHeight + gap)));
+    state.homeDexPreviewRows = rows;
+    preview.style.setProperty("--pokedex-row-height", rows === 1 ? `${Math.max(availableHeight, defaultRowHeight)}px` : `${defaultRowHeight}px`);
+    preview.style.setProperty("--pokedex-preview-rows", String(rows));
+    preview.classList.toggle("is-two-row", rows === 2);
+    preview.classList.toggle("is-one-row", rows === 1);
+    const expectedCount = homeDexPreviewColumns() * rows;
+    if (preview.children.length !== expectedCount) {
+      renderHome();
+    }
   }
 
   function compactHomeActions() {
